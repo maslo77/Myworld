@@ -62,8 +62,30 @@
 
         //sprawdzanie czy error jest pusty
         if(empty($name_err) && empty($email_err) && empty($password_err) && empty($confirm_password_err)){
-            die('VALIDATION PASSED');
+            
+            //hashowanie hasla
+            $password = password_hash($password, PASSWORD_DEFAULT);
+            
+            //zapytanie do bazy
+            $sql= 'INSERT INTO users (name,email, password) VALUES(:name, :email, :password)';
+
+            if($stmt = $pdo->prepare($sql)){
+                $stmt->bindParam(':name', $name, PDO::PARAM_STR);
+                $stmt->bindParam(':email', $email, PDO::PARAM_STR);
+                $stmt->bindParam(':password', $password, PDO::PARAM_STR);
+
+                if($stmt->execute()){
+                    //przekierowanie do logowania
+                    header('location: login.php');
+
+                } else{
+                    die('Cos nie tak');
+                }
+            }
+            unset($stmt);
         }
+        //zamykanie 
+        unset($pdo);
     }
 
 ?>

@@ -20,9 +20,42 @@
             $password_err = 'Podaj hasło';
         }
          //sprawdzanie czy error jest pusty
-         if(empty($name_err) && empty($email_err) && empty($password_err) && empty($confirm_password_err)){
-            die('VALIDATION PASSED');
+         if(empty($email_err) && empty($password_err)){
+            //tworzymy zapytanie
+
+            $sql= 'SELECT name,email,password FROM users WHERE email= :email';
+
+            if($stmt=$pdo->prepare($sql)){
+
+                $stmt->bindParam(':email', $email, PDO::PARAM_STR);
+                if($stmt->execute()){
+                    //sprawdz czy email istnieje
+                    if($stmt->rowCount() === 1){
+                        if($row = $stmt->fetch()){
+                            $hashed_password = $row['password'];
+                            if(password_verify($password, $hashed_password)){
+                                //SUCCESFUL LOGIN
+                                session_start();
+                                $_SESSION['email'] = $email;
+                                $_SESSION['name'] = $row['name'];
+                                header('location: index.php');
+                            } else{
+                                //zle haslo
+                                $password_err= 'Nieprawidłowe hasło';
+                            } 
+                        }
+                    } else {
+                        $email_err = 'Nie znaleziono konta o takim emailu';
+                    }
+                } else {
+                    die('Coś poszło nie tak');
+                }
+            }
+            //koniecf polaczenia
+            unset($stmt);
         }
+        //zamykamy polaczenie
+        unset($pdo);
     }
 ?>
 <!DOCTYPE html>

@@ -1,6 +1,15 @@
 <?php
+//inicjujemy sesjee
+session_start();
 //dolaczamy polaczenie z baza
 require_once 'db.php';
+
+// sprawdzamy czy zalogowany
+if(!isset($_SESSION['email']) || empty($_SESSION['email'])){
+    header('location: login.php');
+    exit;
+}
+
 
 ?>
 <!DOCTYPE html>
@@ -18,8 +27,8 @@ require_once 'db.php';
         <div class="row">
             <div class="col">
                 <div class="card card-body bg-light mt-5">
-                    <h2>Strona Główna <small class="text-muted">michal@gmail.com</small></h2>
-                    <p>Witaj w kokpicie Michał!</p>
+                    <h2>Strona Główna <small class="text-muted"><?php echo $_SESSION['email'] ?></small></h2>
+                    <p>Witaj w kokpicie <?php echo $_SESSION['name'];?></p>
                     <p><a href="logout.php" class="btn btn-danger">Wyloguj się!</a></p>
                 </div>
             </div>
